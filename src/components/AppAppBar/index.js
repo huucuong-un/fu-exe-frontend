@@ -1,6 +1,5 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-
 import Box from '@mui/material/Box';
 import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
@@ -13,6 +12,17 @@ import Drawer from '@mui/material/Drawer';
 import MenuIcon from '@mui/icons-material/Menu';
 import ToggleColorMode from '../ToggleColorMode';
 import { Link } from 'react-router-dom';
+import Avatar from '@mui/material/Avatar'; // Import Avatar
+import Menu from '@mui/material/Menu';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import PersonAdd from '@mui/icons-material/PersonAdd';
+import Settings from '@mui/icons-material/Settings';
+import Logout from '@mui/icons-material/Logout';
+import storageService from '~/components/StorageService/storageService';
+import { useEffect, useState } from 'react';
+import userOption from '~/components/UserOption/userOption';
 
 import logo from '~/assets/images/logo-outlined.png';
 
@@ -23,7 +33,29 @@ const logoStyle = {
 };
 
 function AppAppBar({ mode, toggleColorMode }) {
-    const [open, setOpen] = React.useState(false);
+    const [open, setOpen] = useState(false);
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const openForUserOption = Boolean(anchorEl);
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+    const IMGAGE_HOST = process.env.REACT_APP_IMG_HOST;
+
+    // Initialize userInfo with localStorage value
+    const [userInfo, setUserInfo] = useState(storageService.getItem('userInfo') || {});
+
+    useEffect(() => {
+        // This useEffect is now only for updating userInfo if it changes in localStorage
+        const storedUserInfo = storageService.getItem('userInfo');
+        if (storedUserInfo !== null) {
+            setUserInfo(storedUserInfo);
+            console.log(storedUserInfo);
+            console.log(userInfo);
+        }
+    }, []);
 
     const toggleDrawer = (newOpen) => () => {
         setOpen(newOpen);
@@ -83,54 +115,159 @@ function AppAppBar({ mode, toggleColorMode }) {
                                 px: 0,
                             }}
                         >
-                            <img src={logo} style={logoStyle} alt="logo of tortee" />
+                            <Link to="/">
+                                <img src={logo} style={logoStyle} alt="logo of tortee" />
+                            </Link>
                             <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-                                <MenuItem onClick={() => scrollToSection('features')} sx={{ py: '6px', px: '12px' }}>
-                                    <Typography variant="body2" color="text.primary">
-                                        Features
-                                    </Typography>
+                                <MenuItem sx={{ py: '6px', px: '12px' }}>
+                                    <Link to="/mentors" style={{ textDecoration: 'none' }}>
+                                        <Typography variant="body2" color="text.primary">
+                                            Mentors
+                                        </Typography>
+                                    </Link>
                                 </MenuItem>
-                                <MenuItem onClick={() => scrollToSection('mentors')} sx={{ py: '6px', px: '12px' }}>
-                                    <Typography variant="body2" color="text.primary">
-                                        Mentors
-                                    </Typography>
+                                <Divider orientation="vertical" variant="middle" flexItem />
+
+                                <MenuItem onClick={() => scrollToSection('features')} sx={{ py: '6px', px: '12px' }}>
+                                    <a href="/#features" style={{ textDecoration: 'none' }}>
+                                        <Typography variant="body2" color="text.primary">
+                                            Features
+                                        </Typography>
+                                    </a>
+                                </MenuItem>
+                                <MenuItem onClick={() => scrollToSection('companies')} sx={{ py: '6px', px: '12px' }}>
+                                    <Link to="/company" style={{ textDecoration: 'none' }}>
+                                        <Typography variant="body2" color="text.primary">
+                                            Companies
+                                        </Typography>
+                                    </Link>
                                 </MenuItem>
                                 <MenuItem onClick={() => scrollToSection('highlights')} sx={{ py: '6px', px: '12px' }}>
-                                    <Typography variant="body2" color="text.primary">
-                                        Highlights
-                                    </Typography>
+                                    <a href="/#highlights" style={{ textDecoration: 'none' }}>
+                                        <Typography variant="body2" color="text.primary">
+                                            Highlights
+                                        </Typography>
+                                    </a>
                                 </MenuItem>
-                                <MenuItem onClick={() => scrollToSection('pricing')} sx={{ py: '6px', px: '12px' }}>
+                                {/* <MenuItem onClick={() => scrollToSection('pricing')} sx={{ py: '6px', px: '12px' }}>
                                     <Typography variant="body2" color="text.primary">
                                         Pricing
                                     </Typography>
-                                </MenuItem>
+                                </MenuItem> */}
                                 <MenuItem onClick={() => scrollToSection('faq')} sx={{ py: '6px', px: '12px' }}>
-                                    <Typography variant="body2" color="text.primary">
-                                        FAQs
-                                    </Typography>
+                                    <a href="/#faq" style={{ textDecoration: 'none' }}>
+                                        <Typography variant="body2" color="text.primary">
+                                            FAQs
+                                        </Typography>
+                                    </a>
                                 </MenuItem>
                             </Box>
                         </Box>
-                        <Box
-                            sx={{
-                                display: { xs: 'none', md: 'flex' },
-                                gap: 0.5,
-                                alignItems: 'center',
-                            }}
-                        >
-                            <ToggleColorMode mode={mode} toggleColorMode={toggleColorMode} />
-                            <Link to={'/sign-in'}>
-                                <Button color="primary" variant="text" size="small" component="a" target="_blank">
-                                    Sign in
-                                </Button>
-                            </Link>
-                            <Link to={'/sign-up'}>
-                                <Button color="primary" variant="contained" size="small" component="a" target="_blank">
-                                    Sign up
-                                </Button>
-                            </Link>
-                        </Box>
+                        {userInfo !== null ? (
+                            <React.Fragment>
+                                <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
+                                    <Tooltip title="Account settings">
+                                        <IconButton
+                                            onClick={handleClick}
+                                            size="small"
+                                            sx={{ ml: 2 }}
+                                            aria-controls={openForUserOption ? 'account-menu' : undefined}
+                                            aria-haspopup="true"
+                                            aria-expanded={openForUserOption ? 'true' : undefined}
+                                        >
+                                            <Avatar src={IMGAGE_HOST + userInfo.avatarUrl} />
+                                        </IconButton>
+                                    </Tooltip>
+                                </Box>
+                                <Menu
+                                    anchorEl={anchorEl}
+                                    id="account-menu"
+                                    open={openForUserOption}
+                                    onClose={handleClose}
+                                    onClick={handleClose}
+                                    PaperProps={{
+                                        elevation: 0,
+                                        sx: {
+                                            overflow: 'visible',
+                                            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
+                                            mt: 1.5,
+                                            '& .MuiAvatar-root': {
+                                                width: 32,
+                                                height: 32,
+                                                ml: -0.5,
+                                                mr: 1,
+                                            },
+                                            '&::before': {
+                                                content: '""',
+                                                display: 'block',
+                                                position: 'absolute',
+                                                top: 0,
+                                                right: 14,
+                                                width: 10,
+                                                height: 10,
+                                                bgcolor: 'background.paper',
+                                                transform: 'translateY(-50%) rotate(45deg)',
+                                                zIndex: 0,
+                                            },
+                                        },
+                                    }}
+                                    transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                                    anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                                >
+                                    <MenuItem onClick={handleClose}>
+                                        <Avatar /> Profile
+                                    </MenuItem>
+                                    <MenuItem onClick={handleClose}>
+                                        <Avatar /> My account
+                                    </MenuItem>
+                                    <Divider />
+                                    <MenuItem onClick={handleClose}>
+                                        <ListItemIcon>
+                                            <PersonAdd fontSize="small" />
+                                        </ListItemIcon>
+                                        Add another account
+                                    </MenuItem>
+                                    <MenuItem onClick={handleClose}>
+                                        <ListItemIcon>
+                                            <Settings fontSize="small" />
+                                        </ListItemIcon>
+                                        Settings
+                                    </MenuItem>
+                                    <MenuItem onClick={handleClose}>
+                                        <ListItemIcon>
+                                            <Logout fontSize="small" />
+                                        </ListItemIcon>
+                                        Logout
+                                    </MenuItem>
+                                </Menu>
+                            </React.Fragment>
+                        ) : (
+                            <Box
+                                sx={{
+                                    display: { xs: 'none', md: 'flex' },
+                                    gap: 0.5,
+                                    alignItems: 'center',
+                                }}
+                            >
+                                {/* <ToggleColorMode mode={mode} toggleColorMode={toggleColorMode} /> */}
+                                <Link to={'/sign-in'}>
+                                    <Button color="primary" variant="text" size="small" component="a" target="_blank">
+                                        Sign in
+                                    </Button>
+                                </Link>
+                                <Link to={'/sign-up'}>
+                                    <Button
+                                        variant="contained"
+                                        size="small"
+                                        component="a"
+                                        target="_blank"
+                                        sx={{ backgroundColor: '#365E32' }}
+                                    >
+                                        Sign up
+                                    </Button>
+                                </Link>
+                            </Box>
+                        )}
                         <Box sx={{ display: { sm: '', md: 'none' } }}>
                             <Button
                                 variant="text"
@@ -161,35 +298,37 @@ function AppAppBar({ mode, toggleColorMode }) {
                                         <ToggleColorMode mode={mode} toggleColorMode={toggleColorMode} />
                                     </Box>
                                     <MenuItem onClick={() => scrollToSection('features')}>Features</MenuItem>
-                                    <MenuItem onClick={() => scrollToSection('mentors')}>Mentors</MenuItem>
+                                    {/* <MenuItem onClick={() => scrollToSection('mentors')}>Mentors</MenuItem> */}
                                     <MenuItem onClick={() => scrollToSection('highlights')}>Highlights</MenuItem>
                                     <MenuItem onClick={() => scrollToSection('pricing')}>Pricing</MenuItem>
                                     <MenuItem onClick={() => scrollToSection('faq')}>FAQ</MenuItem>
                                     <Divider />
-                                    <MenuItem>
-                                        <Button
-                                            color="primary"
-                                            variant="contained"
-                                            component="a"
-                                            href="/material-ui/getting-started/templates/sign-up/"
-                                            target="_blank"
-                                            sx={{ width: '100%' }}
-                                        >
-                                            Sign up
-                                        </Button>
-                                    </MenuItem>
-                                    <MenuItem>
-                                        <Button
-                                            color="primary"
-                                            variant="outlined"
-                                            component="a"
-                                            href="/material-ui/getting-started/templates/sign-in/"
-                                            target="_blank"
-                                            sx={{ width: '100%' }}
-                                        >
-                                            Sign in
-                                        </Button>
-                                    </MenuItem>
+                                    <>
+                                        <MenuItem>
+                                            <Button
+                                                color="primary"
+                                                variant="contained"
+                                                component="a"
+                                                href="/sign-up/"
+                                                target="_blank"
+                                                sx={{ width: '100%' }}
+                                            >
+                                                Sign up
+                                            </Button>
+                                        </MenuItem>
+                                        <MenuItem>
+                                            <Button
+                                                color="primary"
+                                                variant="outlined"
+                                                component="a"
+                                                href="/sign-in/"
+                                                target="_blank"
+                                                sx={{ width: '100%' }}
+                                            >
+                                                Sign in
+                                            </Button>
+                                        </MenuItem>
+                                    </>
                                 </Box>
                             </Drawer>
                         </Box>
