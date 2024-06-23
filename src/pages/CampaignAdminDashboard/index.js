@@ -10,25 +10,19 @@ import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import Badge from '@mui/material/Badge';
-import Container from '@mui/material/Container';
-import Grid from '@mui/material/Grid';
-import Paper from '@mui/material/Paper';
 import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import { mainListItems, secondaryListItems } from '../../components/listItems';
-import Chart from '../../components/Chart';
-import Deposits from '../../components/Deposits';
-import Orders from '../../components/Orders';
-import { TextField } from '@mui/material';
+import { MainListItems, SecondaryListItems } from '../../components/listItems';
+import CampaignList from '~/components/Campain/CampainList';
 
 function Copyright(props) {
     return (
         <Typography variant="body2" color="text.secondary" align="center" {...props}>
             {'Copyright © '}
-            <Link color="inherit" href="https://mui.com/">
-                Your Website
+            <Link color="inherit" href="https://tortee.vercel.app/sign-in">
+                Tortee
             </Link>{' '}
             {new Date().getFullYear()}
             {'.'}
@@ -111,9 +105,13 @@ export default function Dashboard() {
                         >
                             <MenuIcon />
                         </IconButton>
-                        <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
-                            Dashboard
-                        </Typography>
+                        <Typography
+                            component="h1"
+                            variant="h6"
+                            color="inherit"
+                            noWrap
+                            sx={{ flexGrow: 1 }}
+                        ></Typography>
                         <IconButton color="inherit">
                             <Badge badgeContent={4} color="secondary">
                                 <NotificationsIcon />
@@ -141,9 +139,9 @@ export default function Dashboard() {
                     </Toolbar>
                     <Divider />
                     <List component="nav">
-                        {mainListItems}
+                        {MainListItems}
                         <Divider sx={{ my: 1 }} />
-                        {secondaryListItems}
+                        {SecondaryListItems}
                     </List>
                 </Drawer>
                 <Box
@@ -157,43 +155,26 @@ export default function Dashboard() {
                     }}
                 >
                     <Toolbar />
-                    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-                        <Grid container spacing={3}>
-                            {/* Chart */}
-                            <Grid item xs={12} md={8} lg={9}>
-                                <Paper
-                                    sx={{
-                                        p: 2,
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        height: 240,
-                                    }}
-                                >
-                                    <Chart />
-                                </Paper>
-                            </Grid>
-                            {/* Recent Deposits */}
-                            <Grid item xs={12} md={4} lg={3}>
-                                <Paper
-                                    sx={{
-                                        p: 2,
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        height: 240,
-                                    }}
-                                >
-                                    <Deposits />
-                                </Paper>
-                            </Grid>
-                            {/* Recent Orders */}
-                            <Grid item xs={12}>
-                                <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                                    <Orders />
-                                </Paper>
-                            </Grid>
-                        </Grid>
-                        <Copyright sx={{ pt: 4 }} />
-                    </Container>
+                    <Box
+                        sx={{
+                            position: 'sticky',
+                            top: 0,
+                            backgroundColor: (theme) =>
+                                theme.palette.mode === 'light' ? theme.palette.grey[100] : theme.palette.grey[900],
+                            zIndex: 1,
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            padding: '16px 0',
+                        }}
+                    ></Box>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexGrow: 1 }}>
+                        <Box sx={{ width: '100%', maxWidth: 600 }}>
+                            {' '}
+                            {/* Adjust maxWidth as needed */}
+                            <CampaignList />
+                        </Box>
+                    </Box>
                 </Box>
             </Box>
         </ThemeProvider>

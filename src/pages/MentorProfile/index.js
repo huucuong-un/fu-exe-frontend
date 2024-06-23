@@ -1,21 +1,80 @@
 import { Box, Container, Divider } from '@mui/material';
-import React from 'react';
 import { MentorAbout } from '~/components/MentorAbout';
 import { MentorFeedback } from '~/components/MentorFeedback';
 import { MentorSkill } from '~/components/MentorSkill';
 import { ShortMentorInfo } from '~/components/ShortMentorInfo';
+import SimilarMentor from '~/components/SimilarMentors';
+
+import { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import MentorAPI from '~/API/MentorAPI';
 
 export const MentorProfile = () => {
+    const { mentorId } = useParams();
+    const [mentor, setMentor] = useState({});
+    const [similarMentor, setSimilarMentor] = useState([]);
+
+    useEffect(() => {
+        const getMentorByMentorProfileId = async () => {
+            try {
+                const mentorData = await MentorAPI.getMentorByMentorProfileId(mentorId);
+                setMentor(mentorData);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+
+        getMentorByMentorProfileId();
+    }, [mentorId]);
+
+    useEffect(() => {
+        const getMentorsByCompanyId = async () => {
+            try {
+                const params = {
+                    mentorId: mentor.mentorProfile.mentorDTO.id,
+                };
+
+                console.log(mentor.mentorProfile.mentorDTO?.company?.id);
+                const mentorData = await MentorAPI.getMentorsByCompanyIdV2(
+                    mentor?.mentorProfile.mentorDTO?.company?.id,
+                    params,
+                );
+                console.log(mentorData);
+                setSimilarMentor(mentorData);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+
+        getMentorsByCompanyId();
+    }, [mentor]);
+
+    useEffect(() => {
+        console.log(mentor);
+    }, [mentor]);
+
     return (
-        <Container>
+        <Container sx={{ pt: 14 }}>
             <Box>
-                <ShortMentorInfo />
-                <Divider />
-                <MentorAbout />
-                <Divider />
-                <MentorSkill />
+                {mentor && (
+                    <ShortMentorInfo
+                        username={mentor?.mentorProfile?.mentorDTO?.fullName}
+                        profilePicture={mentor?.mentorProfile?.profilePicture}
+                        shortDescription={mentor?.mentorProfile?.shortDescription}
+                        linkedinURL={mentor?.mentorProfile?.linkedinUrl}
+                        facebookURL={mentor?.mentorProfile?.facebookUrl}
+                        googleMeetURL={mentor?.mentorProfile?.googleMeetUrl}
+                        requirement={mentor?.mentorProfile?.requirement}
+                        mentorId={mentor?.mentorProfile?.mentorDTO?.id}
+                    />
+                )}
+                {mentor && <MentorAbout description={mentor?.mentorProfile?.description} />}
                 <Divider />
                 <MentorFeedback />
+                <Divider />
+                {mentor && <MentorSkill skills={mentor?.skills} />}
+                <Divider />
+                <SimilarMentor similarMentor={similarMentor} />
             </Box>
         </Container>
     );
