@@ -1,5 +1,4 @@
 import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
@@ -7,13 +6,18 @@ import { Link } from 'react-router-dom';
 import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Divider, Tab } from '@mui/material';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
+import { useNavigate } from 'react-router-dom';
+import AccountAPI from '~/API/AccountAPI';
+import Alert from '@mui/material/Alert';
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import storageService from '~/components/StorageService/storageService';
 
 import logo from '~/assets/images/logo.png';
 
@@ -35,23 +39,50 @@ function Copyright(props) {
 const defaultTheme = createTheme();
 
 export default function SignInSide() {
-    const [value, setValue] = React.useState('1');
+    const [value, setValue] = useState('1');
+    const [showAlert, setShowAlert] = useState(false);
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.state?.signupSuccess) {
+            setShowAlert(true);
+            const timer = setTimeout(() => {
+                setShowAlert(false);
+            }, 5000); // Show alert for 5 seconds
+            return () => clearTimeout(timer);
+        }
+    }, [location.state]);
 
     const handleChange = (event, newValue) => {
         setValue(newValue);
     };
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        console.log({
-            email: data.get('email'),
-            password: data.get('password'),
-        });
+    const navigate = useNavigate();
+
+    const handleSubmit = async (event) => {
+        try {
+            event.preventDefault();
+            const data = new FormData(event.currentTarget);
+            const userInfo = await AccountAPI.login(data);
+
+            // Check if userInfo is not undefined or null
+            if (userInfo) {
+                // Store user information in local storage
+                storageService.setItem('userInfo', userInfo);
+                navigate('/');
+            }
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     return (
         <ThemeProvider theme={defaultTheme}>
+            {showAlert && (
+                <Alert width="50%" variant="filled" severity="success">
+                    Registered Successfully
+                </Alert>
+            )}
             <Grid container component="main" sx={{ height: '100vh' }}>
                 <CssBaseline />
                 <Grid
@@ -98,10 +129,10 @@ export default function SignInSide() {
                                             margin="normal"
                                             required
                                             fullWidth
-                                            id="email"
-                                            label="Email Address"
-                                            name="email"
-                                            autoComplete="email"
+                                            id="emailOrUsername"
+                                            label="Email Or Username"
+                                            name="emailOrUsername"
+                                            autoComplete="emailOrUsername"
                                             autoFocus
                                         />
                                         <TextField
