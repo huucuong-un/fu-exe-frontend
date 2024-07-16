@@ -17,8 +17,25 @@ import Features from '~/components/Features';
 import MentorSuggestion from '~/components/MentorSuggestion';
 import FAQ from '~/components/FAQ';
 import getLPTheme from '~/components/getLPTheme';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { Container } from '@mui/material';
 
 function ToggleCustomTheme({ showCustomTheme, toggleCustomTheme }) {
+    const [showAlert, setShowAlert] = useState(false);
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.state?.signupSuccess) {
+            setShowAlert(true);
+            const timer = setTimeout(() => {
+                setShowAlert(false);
+            }, 5000); // Show alert for 5 seconds
+            return () => clearTimeout(timer);
+        }
+    }, [location.state]);
+
     return (
         <Box
             sx={{
@@ -75,29 +92,25 @@ export default function LandingPage() {
     };
 
     return (
-        <ThemeProvider
-            theme={showCustomTheme ? LPtheme : defaultTheme}
-            sx={{
-                fontFamily: 'Montserrat, sans-serif',
-            }}
+        <Box
+        // theme={showCustomTheme ? LPtheme : defaultTheme}
         >
             <CssBaseline />
-            <AppAppBar mode={mode} toggleColorMode={toggleColorMode} />
+            {/* <AppAppBar mode={mode} toggleColorMode={toggleColorMode} /> */}
             <Hero />
             <Box sx={{ bgcolor: 'background.default' }}>
                 <LogoCollection />
-                <Features />
-                <Divider />
+                {/* <Features />
+                <Divider /> */}
                 <MentorSuggestion />
                 <Divider />
-                <Highlights />
-                <Divider />
-                <Pricing />
-                <Divider />
+                {/* <Highlights />
+                <Divider /> */}
+                {/* <Pricing /> */}
                 <FAQ />
                 <Divider />
             </Box>
             {/* <ToggleCustomTheme showCustomTheme={showCustomTheme} toggleCustomTheme={toggleCustomTheme} /> */}
-        </ThemeProvider>
+        </Box>
     );
 }
