@@ -17,8 +17,24 @@ import Features from '~/components/Features';
 import MentorSuggestion from '~/components/MentorSuggestion';
 import FAQ from '~/components/FAQ';
 import getLPTheme from '~/components/getLPTheme';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 function ToggleCustomTheme({ showCustomTheme, toggleCustomTheme }) {
+    const [showAlert, setShowAlert] = useState(false);
+    const location = useLocation();
+
+    useEffect(() => {
+        if (location.state?.signupSuccess) {
+            setShowAlert(true);
+            const timer = setTimeout(() => {
+                setShowAlert(false);
+            }, 5000); // Show alert for 5 seconds
+            return () => clearTimeout(timer);
+        }
+    }, [location.state]);
+
     return (
         <Box
             sx={{
@@ -86,12 +102,12 @@ export default function LandingPage() {
             <Hero />
             <Box sx={{ bgcolor: 'background.default' }}>
                 <LogoCollection />
-                <Features />
-                <Divider />
+                {/* <Features />
+                <Divider /> */}
                 <MentorSuggestion />
                 <Divider />
-                <Highlights />
-                <Divider />
+                {/* <Highlights />
+                <Divider /> */}
                 <Pricing />
                 <Divider />
                 <FAQ />
